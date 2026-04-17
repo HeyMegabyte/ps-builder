@@ -1,9 +1,8 @@
 FROM ubuntu:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV HOME=/home/cuser
 
-# Core system deps + top 30 tools for web building
+# Core system deps
 RUN apt-get update && apt-get install -y \
     curl wget git ca-certificates gnupg sudo \
     imagemagick ffmpeg jq unzip zip \
@@ -15,37 +14,30 @@ RUN apt-get update && apt-get install -y \
     openssh-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Node.js (latest LTS)
+# Node.js 22
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user with sudo (Claude Code blocks --dangerously-skip-permissions as root)
+# Claude Code CLI (install as root — global npm needs root)
+RUN npm install -g @anthropic-ai/claude-code
+
+# Non-root user with sudo (Claude blocks --dangerously-skip-permissions as root)
 RUN useradd -m -s /bin/bash cuser \
     && echo "cuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
     && mkdir -p /app /tmp/builds \
     && chown -R cuser:cuser /app /tmp/builds /home/cuser
 
-# Switch to cuser for all remaining installs
+# Homebrew (installed as cuser — lets Claude Code install anything it needs at runtime)
 USER cuser
-WORKDIR /home/cuser
-
-# Homebrew (lets Claude Code install anything it needs)
-RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" \
-    && echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/cuser/.bashrc \
-    && echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/cuser/.profile
-
+ENV HOME=/home/cuser
+RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
 
-# Claude Code CLI (installed as cuser so it works with --dangerously-skip-permissions)
-RUN npm install -g @anthropic-ai/claude-code
-
-# Copy build server
+# Copy build server (as root for file ownership)
 USER root
 COPY build-server.js /app/server.js
 RUN chown cuser:cuser /app/server.js
 
 EXPOSE 8080
-
-# Run as root — the server itself switches to cuser for Claude Code execution
 CMD ["node", "/app/server.js"]
