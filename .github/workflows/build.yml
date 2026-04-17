@@ -21,7 +21,7 @@ jobs:
       - name: Build and push
         run: |
           docker build -t ps-builder .
-          docker tag ps-builder ghcr.io/heymegabyte/ps-builder:v1
-          docker push ghcr.io/heymegabyte/ps-builder:v1
-          docker tag ps-builder professormanhattan/ps-builder:v1
-          docker push professormanhattan/ps-builder:v1
+          docker tag ps-builder ghcr.io/heymegabyte/ps-builder:v2
+          docker push ghcr.io/heymegabyte/ps-builder:v2
+          docker tag ps-builder professormanhattan/ps-builder:v2
+          docker push professormanhattan/ps-builder:v2
