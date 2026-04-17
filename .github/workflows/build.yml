@@ -20,8 +20,8 @@ jobs:
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u professormanhattan --password-stdin
       - name: Build and push
         run: |
-          docker build -t ps-builder:latest .
-          docker tag ps-builder:latest ghcr.io/heymegabyte/ps-builder:latest
-          docker push ghcr.io/heymegabyte/ps-builder:latest
-          docker tag ps-builder:latest professormanhattan/ps-builder:latest
-          docker push professormanhattan/ps-builder:latest
+          docker build -t ps-builder .
+          docker tag ps-builder ghcr.io/heymegabyte/ps-builder:v1
+          docker push ghcr.io/heymegabyte/ps-builder:v1
+          docker tag ps-builder professormanhattan/ps-builder:v1
+          docker push professormanhattan/ps-builder:v1
