@@ -17,11 +17,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u energysmasher --password-stdin
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u professormanhattan --password-stdin
       - name: Build and push
         run: |
           docker build -t ps-builder:latest .
           docker tag ps-builder:latest ghcr.io/heymegabyte/ps-builder:latest
           docker push ghcr.io/heymegabyte/ps-builder:latest
-          docker tag ps-builder:latest energysmasher/ps-builder:latest
-          docker push energysmasher/ps-builder:latest
+          docker tag ps-builder:latest professormanhattan/ps-builder:latest
+          docker push professormanhattan/ps-builder:latest
